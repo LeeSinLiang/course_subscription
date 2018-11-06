@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'memberships',
     'courses',
+    'login',
 ]
 
 MIDDLEWARE = [
@@ -129,14 +130,16 @@ STATICFILES_DIRS = [
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
+
 MEDIA_URL = '/media/'
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media_root')
-
 if DEBUG:
+
     STRIPE_PUBLISHABLE_KEY = 'pk_test_gUic9tpuhVwweXFOhmVIEQ5L'
     STRIPE_SECRET_KEY = 'sk_test_CNlXE6Xjrs02X0YXN22z9KOm'
-
 else:
     STRIPE_PUBLISHABLE_KEY = ''
     STRIPE_SECRET_KEY = ''
+    
+LOGIN_REDIRECT_URL = '/memberships/'

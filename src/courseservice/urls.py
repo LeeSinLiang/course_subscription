@@ -17,10 +17,16 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path,include
-
+from django.contrib.auth import views as auth_views
+from login.views import logout_page, register, redirect_to_home
 
 urlpatterns = [
+    path('register/', register, name="register"),
     path('admin/', admin.site.urls),
+    path('accounts/',  include('django.contrib.auth.urls'), name='login'),
+    path('logout/', logout_page ,name='logout'),
+    path('', redirect_to_home, name='home'),
+    path('home/', redirect_to_home, name='home'),
     path('courses/', include('courses.urls' , namespace='courses')),
     path('memberships/', include('memberships.urls', namespace='memberships')),
 
