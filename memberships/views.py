@@ -55,63 +55,66 @@ class MembershipSelectView(ListView):
             return context
 
     def post(self, request, **kwargs):
-        selected_membership_type = request.POST.get('membership_type')
-        if self.request.user.is_authenticated:
-            user_membership = get_user_membership(request)
-            user_subscription = get_user_subscription(request)
+		user_membership = get_user_membership(request)
+		user_subscription = get_user_subscription(request)
 
-        selected_membership_qs = Membership.objects.filter(
-            membership_type=selected_membership_type)
-        if selected_membership_qs.exists():
-            selected_membership = selected_membership_qs.first()
+		selected_membership_type = request.POST.get('membership_type')
 
-        if self.request.user.is_authenticated:
-            if user_membership.membership == selected_membership:
-                if user_subscription != None:
-                    messages.info(request,"You already have this membership. Your next payment is due {}".format('get this value from stripe'))
-                return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+		selected_membership_qs = Membership.objects.filter(
+				membership_type=selected_membership_type)
+		selected_membership = selected_membership_qs.first()
 
-        request.session['selected_membership_type'] = selected_membership.membership_type
-        return HttpResponseRedirect(reverse('memberships:payment'))
+		if user_membership.membership == selected_membership:
+			if user_subscription != None:
+				messages.info(request, "You already have this membership. Your \
+					next payment is due {}".format('get this value from stripe'))
+				return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+		# assign to the session
+		request.session['selected_membership_type'] = selected_membership.membership_type
+
+		return HttpResponseRedirect(reverse('memberships:payment'))
+
 
 def PaymentView(request):
     if request.user.is_authenticated:
         user_membership = get_user_membership(request)
-        selected_membership = get_selected_membership(request)
-        publishKey = settings.STRIPE_PUBLISHABLE_KEY
 
-        if request.method == 'POST':
-            try:
-                token = request.POST['stripeToken']
-                subscription = stripe.Subscription.create(
-                    customer=user_membership.stripe_customer_id,
-                    items=[
-                        {
-                            "plan":selected_membership.stripe_plan_id,
-                        },
-                    ],
-                    source=token
-                )
+	selected_membership = get_selected_membership(request)
 
-                return redirect(reverse('memberships:update-transactions',
-                    kwargs={
-                        'subscription_id': subscription.id
-                    }
-                ))
+	publishKey = settings.STRIPE_PUBLISHABLE_KEY
 
-            except stripe.error.CardError as e:
-                messages.info(request, "Your card has been declined")
+	if request.method == "POST":
+		try:
+			token = request.POST['stripeToken']
+			subscription = stripe.Subscription.create(
+			  customer=user_membership.stripe_customer_id,
+			  items=[
+			    {
+			      "plan": selected_membership.stripe_plan_id,
+			    },
+			  ],
+			  source=token # 4242424242424242
+			)
 
-        context = {
-            'publishKey' : publishKey,
-            'selected_membership' : selected_membership
-        }
+			return redirect(reverse('memberships:update-transactions',
+				kwargs={
+					'subscription_id': subscription.id
+				}))
 
-        return render(request,"memberships/membership_payment.html", context)
+		except stripe.error.CardError as e:
+			messages.info(request, "Your card has been declined")
 
     else:
         messages.info(request, 'Please sign in to your account first')
         return redirect('/accounts/login/')
+        
+    context = {
+		'publishKey': publishKey,
+		'selected_membership': selected_membership
+	}
+
+	return render(request, "memberships/membership_payment.html", context)
 
 def updateTransactions(request,subscription_id):
     
