@@ -1,1 +1,1 @@
-web: gunicorn courseservice.wsgi --log-file -
+web: gunicorn crs_project.wsgi --log-file -
