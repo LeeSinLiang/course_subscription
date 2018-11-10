@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 """
 
 import os
-
+import django_heroku
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'courseservice.urls'
@@ -139,7 +140,8 @@ if DEBUG:
     STRIPE_PUBLISHABLE_KEY = 'pk_test_gUic9tpuhVwweXFOhmVIEQ5L'
     STRIPE_SECRET_KEY = 'sk_test_CNlXE6Xjrs02X0YXN22z9KOm'
 else:
-    STRIPE_PUBLISHABLE_KEY = ''
-    STRIPE_SECRET_KEY = ''
+    STRIPE_PUBLISHABLE_KEY = 'pk_test_gUic9tpuhVwweXFOhmVIEQ5L'
+    STRIPE_SECRET_KEY = 'sk_test_CNlXE6Xjrs02X0YXN22z9KOm'
     
 LOGIN_REDIRECT_URL = '/memberships/'
+django_heroku.settings(locals())
