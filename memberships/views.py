@@ -99,7 +99,7 @@ def PaymentView(request):
                     }
                 ))
 
-            except stripe.CardError as e:
+            except stripe.error.CardError as e:
                 messages.info(request, "Your card has been declined")
 
         context = {
